@@ -1,10 +1,11 @@
 const STORAGE_KEY = "fruitin-decisions-v1";
-const FRUIT_DATA_URL = "data/fruits.json?v=20260728-4";
 const FALLBACK_FRUITS = [];
-const state = { fruits: [], decisions: loadDecisions(), currentIndex: 0, drag: null, toastTimer: null, eventsBound: false };
+const state = { fruits: [], decisions: loadDecisions(), currentIndex: 0, drag: null, eventsBound: false };
 const el = { stage: document.querySelector("#card-stage"), progressLabel: document.querySelector("#progress-label"), progressValue: document.querySelector("#progress-value"), hint: document.querySelector("#gesture-hint"), matchCount: document.querySelector("#match-count"), historyButton: document.querySelector("#history-button"), dialog: document.querySelector("#history-dialog"), closeHistory: document.querySelector("#close-history"), historyContent: document.querySelector("#history-content"), resetButton: document.querySelector("#reset-button") };
+
 init();
-async function init() { bindEvents(); try { const response = await fetch(FRUIT_DATA_URL, { cache: "no-store" }); if (!response.ok) throw Error(); state.fruits = await response.json(); } catch { state.fruits = FALLBACK_FRUITS; } render(); }
+
+async function init() { bindEvents(); try { const response = await fetch("data/fruits.json", { cache: "no-store" }); if (!response.ok) throw Error(); state.fruits = await response.json(); } catch { state.fruits = FALLBACK_FRUITS; } render(); }
 function bindEvents() { if (state.eventsBound) return; state.eventsBound = true; document.querySelectorAll("[data-decision]").forEach(button => button.addEventListener("click", () => decide(button.dataset.decision))); el.historyButton.addEventListener("click", openHistory); el.closeHistory.addEventListener("click", () => el.dialog.close()); el.resetButton.addEventListener("click", resetExperience); el.dialog.addEventListener("click", event => { if (event.target === el.dialog) el.dialog.close(); }); document.addEventListener("keydown", handleKeyboard); }
 function loadDecisions() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; } }
 function saveDecisions() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.decisions)); }
